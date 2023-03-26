@@ -30,17 +30,26 @@ Route::post('insert', function () {
     return redirect()->back();
 });
 
-Route::post('insert', function () {
-    DB::table('tasks')->insert([
-        'name'=>$_POST['name'],
-        'created_at'=>now()
-        
-    ]);
-    return redirect()->back();
+Route::post('update/{id}', function ($id) {
+    $tasks = DB::table('tasks')->where('id',$id)->get();
+    return view('update',compact('tasks'));
 });
+
+Route::post('update/up/{id}', function ($id){
+    
+    DB::table('tasks')->where('id', $id)
+    ->update(['name'=>$_POST['name']]);
+    return redirect('/');
+});
+
+//up/{{$task->id}}/{{$task->name}}
 
 Route::get('/', function () {
     $tasks = DB::table('tasks')->get();
     return view('index',compact('tasks'));
 });
 
+Route::get('front', function () {
+    
+    return view('layout.front');
+});
