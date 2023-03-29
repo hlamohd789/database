@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -13,40 +14,37 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('show', function () {
-    $tasks = DB::table('tasks')->get();
-    return view('show',compact('tasks'));
-});
-Route::post('delete/{id}', function ($id) {
-    $tasks = DB::table('tasks')->where('id',$id)->delete();
-    return redirect()->back();
-});
-Route::post('insert', function () {
-    DB::table('tasks')->insert([
-        'name'=>$_POST['name'],
-        'created_at'=>now()
-        
-    ]);
-    return redirect()->back();
-});
+Route::get('show', [TaskController::class,'index'])->name('tasks');
+Route::delete('delete/{id}',[TaskController::class,'destroy'] )->name('task.delete');
+Route::post('insert',[TaskController::class,'store'] )->name('task.insert');
 
 Route::post('update/{id}', function ($id) {
-    $tasks = DB::table('tasks')->where('id',$id)->get();
-    return view('update',compact('tasks'));
+    $taskss = DB::table('tasks')->where('id',$id)->get();
+    $tasks = DB::table('tasks')->get();
+    return view('index',compact(['tasks','taskss']))
+    ->with('val',1)
+    ->with('btn_val','Update')
+    ->with('tbl_val','Update Task');
 });
 
-Route::post('update/up/{id}', function ($id){
+Route::post('up/{id}', function ($id){
     
     DB::table('tasks')->where('id', $id)
     ->update(['name'=>$_POST['name']]);
-    return redirect('/');
+    return redirect('/')   
+    ->with('val',0)
+    ->with('btn_val','Add Task')
+    ->with('tbl_val','Table Task');
 });
 
 //up/{{$task->id}}/{{$task->name}}
 
 Route::get('/', function () {
     $tasks = DB::table('tasks')->get();
-    return view('index',compact('tasks'));
+    return view('index',compact('tasks'))
+    ->with('val',0)
+    ->with('btn_val','Add Task')
+    ->with('tbl_val','Table Task');
 });
 
 Route::get('front', function () {
